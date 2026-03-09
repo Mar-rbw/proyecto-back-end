@@ -1,4 +1,3 @@
-from django import forms
 from ..models import Influencers, Usuarios
 from .formBase.BaseRutInfluencerForm import BaseRutInfluencerForm
 from .formBase.BaseNombreForm import BaseNombreForm

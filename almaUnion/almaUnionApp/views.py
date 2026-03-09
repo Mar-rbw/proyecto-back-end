@@ -1,3 +1,4 @@
+## Importaciones de Django
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -5,17 +6,33 @@ from django.contrib.auth.hashers import check_password
 from django.db import transaction
 from django.urls import reverse
 
-from almaUnionApp.models import Usuarios, Influencers, Campanas, Empresas
+# Importaciones de modelo
+from almaUnionApp.models import (Usuarios,
+                                 Influencers,
+                                 Campanas,
+                                 Empresas)
+
+# Importaciones de Choices
 from almaUnionApp.choices.RolChoices import RolChoices
+
+#Importaciones de Forms
+#Importaciones función finalizadas
+from almaUnionApp.forms.InicioSesionForm import (InicioForm as iniForm)
 from almaUnionApp.forms.RegistroEmpresaForm import (RegistroUsuarioForm as RegistroUsuarioFormEm,
                                                     RegistroEmpresaForm as RegistroEmpresaFormEm,
                                                     RegistroRedesSocialesForm as RegistroRedesSocialesFormEm)
 from almaUnionApp.forms.RegistroInfluencerForm import (RegistroUsuarioForm as RegistroUsuarioFormIn,
                                                        RegistroInfluencerForm as RegistroInfluencerFormIn,
                                                        RegistroRedesSocialesForm as RegistroRedesSocialesFormIn)
-from almaUnionApp.forms.ActualizarInfluencerForm import ActualizarInfluencerForm, ActualizarImagenForm
-from almaUnionApp.forms.InicioSesionForm import InicioForm as iniForm
-from .utils import sessionInicioRequerida, rolRequerido
+
+#Importaciones funciones incompletas
+from almaUnionApp.forms.ActualizarInfluencerForm import (ActualizarInfluencerForm as ActualizarInfluencerFormIn,
+                                                         ActualizarImagenForm as ActualizarImagenFormIn)
+
+from almaUnionApp.forms.ActualizarEmpresaForm import (ActualizarEmpresaForm as ActualizarEmpresaFormEm,
+                                                      ActualizarImagenForm as ActualizarImagenFormEm)
+
+from .utils import (sessionInicioRequerida, rolRequerido)
 
 from datetime import datetime
 
@@ -113,12 +130,8 @@ def renderTemplateRegistroInfluencer(request):
 def actualizar_influencer(request):
     uid = request.session["uid"]
 
-    # Opción A (fuente de verdad en BD)
     usuario = Usuarios.objects.only("id_usuario","id_influencer_usuarios","imagen_perfil").get(id_usuario=uid)
     influencer_id = usuario.id_influencer_usuarios
-
-    # Opción B (si guardaste influencer_id en sesión)
-    # influencer_id = request.session.get("influencer_id")
 
     if not influencer_id:
         messages.error(request, "Aún no tienes un perfil de influencer asociado.")
@@ -127,9 +140,9 @@ def actualizar_influencer(request):
     influencer = get_object_or_404(Influencers, id_influencer=influencer_id)
 
     if request.method == "POST":
-        form = ActualizarInfluencerForm(request.POST, instance=influencer)
+        form = ActualizarInfluencerFormIn(request.POST, instance=influencer)
 
-        imagen_form = ActualizarImagenForm(request.POST, request.FILES, instance=usuario)
+        imagen_form = ActualizarImagenFormIn(request.POST, request.FILES, instance=usuario)
 
         if form.is_valid() and imagen_form.is_valid():
             form.save()
@@ -138,8 +151,8 @@ def actualizar_influencer(request):
             return redirect("actualizar_influencer")  # PRG
         messages.error(request, "Revisa los errores del formulario.")
     else:
-        form = ActualizarInfluencerForm(instance=influencer)
-        imagen_form = ActualizarImagenForm(instance=usuario)
+        form = ActualizarInfluencerFormIn(instance=influencer)
+        imagen_form = ActualizarImagenFormIn(instance=usuario)
 
     return render(request, "templatesApp/actualizar_influencer.html", {
         "form": form,
@@ -148,6 +161,43 @@ def actualizar_influencer(request):
         "usuario": usuario,
     })
 
+@sessionInicioRequerida
+@rolRequerido(RolChoices.EMPRESA)
+@transaction.atomic
+def actualizar_empresa(request):
+    uid = request.session["uid"]
+
+    usuario = Usuarios.objects.only("id_usuario","id_empresa_usuarios","imagen_perfil").get(id_usuario=uid)
+    empresa_id = usuario.id_empresa_usuarios
+
+    if not empresa_id:
+        messages.error(request, "Aún no tienes un perfil de empresa asociado.")
+        return redirect("hubEmpresa")
+
+    empresa = get_object_or_404(Empresas, empresa_id=empresa_id)
+
+    if request.method == "POST":
+        form = ActualizarEmpresaFormEm(request.POST, instance=empresa)
+
+        imagen_form = ActualizarImagenFormEm(request.POST, request.FILES, instance=usuario)
+
+        if form.is_valid() and imagen_form.is_valid():
+            form.save()
+            imagen_form.save()
+            messages.success(request, "¡Perfil actualizado correctamente!")
+            return redirect("actualizar_empresa")
+        messages.error(request, "Revisa los errores del formulario.")
+    else:
+        form = ActualizarEmpresaFormEm(instance=empresa)
+        imagen_form = ActualizarImagenFormEm(instance=usuario)
+
+    return render(request, "templatesApp/actualizar_empresa.html", {
+        "form": form,
+        "imagen_form": imagen_form,
+        "empresa": empresa,
+        "usuario": usuario,
+    })
+    
 
 
 @transaction.atomic
@@ -241,7 +291,9 @@ def renderTemplateHubInfluencer(request):
     usuario = (Usuarios. objects
                .only("id_usuario", "email", "rol", "id_influencer_usuarios")
                .get(id_usuario=uid))
+    
     influencer = usuario.id_influencer_usuarios
+    
     if not influencer:
         return render(request, "templatesApp/hubInfluencerVacio.html", {"usuario": usuario})
     

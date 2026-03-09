@@ -33,7 +33,8 @@ from almaUnionApp.views import (renderTemplateMenuInicial, renderTemplateRegistr
                                 renderTemplateEliminarCampaniaOK, renderTemplateRedesSociales,
                                 renderTemplateRedesSocialesCrear, renderTemplateRedesSocialesModificar,
                                 renderTemplateRedesSocialesEliminar, renderTemplateCierreSesión,
-                                renderTemplateOportunidadesDetalles, seleccionarCampana
+                                renderTemplateOportunidadesDetalles, seleccionarCampana,
+                                actualizar_empresa,
                                 )
 urlpatterns = [
     # Agrupación path admin 
@@ -45,6 +46,7 @@ urlpatterns = [
     path("registroEmpresa/", renderTemplateRegistroEmpresa, name='registroEmpresa'),
     path("registroInfluencer/", renderTemplateRegistroInfluencer, name='registroInfluencer'),
     path("login/", renderTemplateInicio, name='login'),
+    path("empresa/editar/", actualizar_empresa, name="actualizar_empresa"),
     path("influencer/editar/", actualizar_influencer, name="actualizar_influencer"),
     # Agrupación path redirección al Hub
     path("hubEmpresa/", renderTemplateHubEmpresa, name='hubEmpresa'),

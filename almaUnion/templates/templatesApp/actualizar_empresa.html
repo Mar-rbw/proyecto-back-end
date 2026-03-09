@@ -1,0 +1,104 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Actualizar Datos del Influencer</title>
+    <link
+      rel="stylesheet"
+      href="{% static 'css/actualizar_influencer.css' %}"
+    />
+  </head>
+  <body>
+    <nav class="navbar">
+      <a href="{% url 'hubInfluencer' %}" class="logo">AlmaUnion</a>
+      <ul class="nav-links">
+        <li><a href="{% url 'hubInfluencer' %}">Inicio</a></li>
+        <li><a href="{% url 'oportunidades' %}">Oportunidades</a></li>
+      </ul>
+    </nav>
+
+    <main class="container">
+      <section class="form-section">
+        <h1>Actualizar Datos</h1>
+        <p>
+          Mantén tu información actualizada para recibir mejores oportunidades.
+        </p>
+
+        {% if messages %}
+        <ul class="messages">
+          {% for message in messages %}
+          <li class="{{ message.tags }}">{{ message }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %} {{ form.non_field_errors }} {% for field in form %}
+          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }} {{ field.errors }} {% endfor %}
+
+          <h3>Imagen de perfil</h3>
+          {% if usuario.imagen_perfil %}
+          <img
+            src="{{ usuario.imagen_perfil.url }}"
+            alt="perfil"
+            style="height: 60px; border-radius: 8px"
+          />
+          {% endif %} {% for field in imagen_form %}
+          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }} {{ field.errors }} {% endfor %}
+
+
+          <button type="submit">Guardar Cambios</button>
+        </form>
+      </section>
+
+      <section class="table-section">
+        <h2>Datos Actualizados</h2>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Campo</th>
+              <th>Valor</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>RUT</td>
+              <td>{{ influencer.rut_influencer }}</td>
+            </tr>
+            <tr>
+              <td>Nombre</td>
+              <td>{{ influencer.nombre }}</td>
+            </tr>
+            <tr>
+              <td>Apellido Paterno</td>
+              <td>{{ influencer.apellido_pat }}</td>
+            </tr>
+            <tr>
+              <td>Apellido Materno</td>
+              <td>{{ influencer.apellido_mat }}</td>
+            </tr>
+            <tr>
+              <td>Categoría</td>
+              <td>{{ influencer.categoria_influencer }}</td>
+            </tr>
+            <tr>
+              <td>Seguidores</td>
+              <td>{{ influencer.seguidores }}</td>
+            </tr>
+            <tr>
+              <td>Promedio Vistas</td>
+              <td>{{ influencer.prom_views }}</td>
+            </tr>
+            <tr>
+              <td>Imagen</td>
+              <td>{{ usuario.imagen_perfil.url | default:'https://randomuser.me/api/portraits/women/44.jpg' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </main>
+  </body>
+</html>

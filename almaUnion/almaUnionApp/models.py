@@ -22,7 +22,7 @@ class Empresas(models.Model):
 class Influencers(models.Model):
     
     id_influencer = models.AutoField(primary_key=True)
-    rut_influencer = models.CharField(max_length=45, unique=True, validators=[validar_rut])
+    rut_influencer = models.CharField(max_length=12, unique=True, validators=[validar_rut])
     nombre = models.CharField(max_length=50, blank=True, null=True)
     apellido_pat = models.CharField(max_length=50, blank=True, null=True)
     apellido_mat = models.CharField(max_length=50, blank=True, null=True)
@@ -40,7 +40,7 @@ class Influencers(models.Model):
 
 class Campanas(models.Model):
     id_campana = models.AutoField(primary_key=True)
-    id_empresa_campanas = models.IntegerField(blank=True, null=True)
+    id_empresa_campanas = models.ForeignKey(Empresas, on_delete=models.CASCADE)
     nombre_campana = models.CharField(max_length=250, blank=True, null=True)
     descripcion = models.TextField(blank=True, null=True)
     presupuesto = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
@@ -58,14 +58,11 @@ class Campanas(models.Model):
 
 class Colaboraciones(models.Model):
     id_colaboracion = models.AutoField(primary_key=True)
-    id_influencer_colaboracion = models.IntegerField(blank=True, null=True)
-    id_campana_colaboracion = models.IntegerField(blank=True, null=True)
-    id_empresa_colaboracion = models.IntegerField(blank=True, null=True)
+    id_influencer_colaboracion = models.ForeignKey(Influencers, models.CASCADE)
+    id_campana_colaboracion = models.ForeignKey(Campanas, models.CASCADE)
+    id_empresa_colaboracion = models.ForeignKey(Empresas, models.CASCADE)
     status = models.CharField(max_length=50, blank=True, null=True)
     pago_acordado = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    #No se que hace
-    #creacion_add = models.DateTimeField(blank=True, null=True)
-
     class Meta:
         verbose_name = 'Colaboracion'
         verbose_name_plural = 'Colaboraciones'
@@ -74,8 +71,8 @@ class Colaboraciones(models.Model):
 
 class MetricasH(models.Model):
     id_metrica = models.AutoField(primary_key=True)
-    id_influencer_metricas = models.IntegerField(blank=True, null=True)
-    id_empresa_metricas = models.IntegerField(blank=True, null=True)
+    id_influencer_metricas = models.ForeignKey(Influencers, models.CASCADE)
+    id_empresa_metricas = models.ForeignKey(Empresas, models.CASCADE)
     nombre_metrica = models.CharField(max_length=250, blank=True, null=True)
     plataforma = models.CharField(max_length=20, choices=PlataformaChoise.choices, blank=True, null=True)
     fecha_analisis = models.DateField(blank=True, null=True)
@@ -93,8 +90,8 @@ class MetricasH(models.Model):
 
 class RedesSociales(models.Model):
     id_red_social = models.AutoField(primary_key=True)
-    id_empresa_redes = models.IntegerField(blank=True, null=True)
-    id_influencer_redes = models.IntegerField(blank=True, null=True)
+    id_empresa_redes = models.ForeignKey(Empresas, models.CASCADE)
+    id_influencer_redes = models.ForeignKey(Influencers, models.CASCADE)
     plataforma = models.CharField(
         max_length=20,
         choices=PlataformaChoise.choices,
@@ -118,9 +115,9 @@ class Usuarios(models.Model):
     rol = models.CharField(max_length=15,choices= RolChoices.choices)
     verificado = models.BooleanField(default=False)
     imagen_perfil =models.ImageField(upload_to='imagenes/', blank=True, null=True)
-    id_empresa_usuarios = models.IntegerField(blank=True, null=True)
-    id_influencer_usuarios = models.IntegerField(blank=True, null=True)
     
+    id_empresa_usuarios = models.ForeignKey(Empresas, models.CASCADE)
+    id_influencer_usuarios = models.ForeignKey(Influencers, models.CASCADE)
 
     class Meta:
         verbose_name = 'Usuario'
